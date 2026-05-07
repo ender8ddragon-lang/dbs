@@ -54,3 +54,28 @@ ORDER BY
     pocet_pretekov DESC, 
     krajina ASC, 
     pocet_bezcov ASC;
+
+SELECT
+    b.meno || ' ' || b.priezvisko AS meno,
+    ROUND(AVG(bp.cas_v_milisekundach)/1000.0, 2) AS cas,
+    COUNT(bp.id_pretek) AS pocet
+FROM bezec b
+JOIN bezec_pretek bp ON b.id_bezec = bp.id_bezec
+JOIN pretek p ON p.id_pretek = bp.id_pretek
+WHERE p.dlzka_v_metroch > 42000
+GROUP BY b.id_bezec, b.meno, b.priezvisko
+HAVING COUNT(bp.id_pretek) >= 2
+ORDER BY pocet DESC, cas ASC, meno ASC
+
+SELECT 
+    k.nazov AS stat,
+    AVG(bp.cas_v_milisekundach) / 1000.0 AS priemer,
+    COUNT(bp.id_pretek) AS pocet
+FROM krajina k
+JOIN bezec b ON k.id_krajina = b.id_krajina
+JOIN bezec_pretek bp ON b.id_bezec = bp.id_bezec
+JOIN pretek p ON bp.id_pretek = p.id_pretek
+WHERE k.kontinent = 'Europa' 
+  AND p.nazov != 'Maraton v Berline'
+GROUP BY k.nazov
+ORDER BY priemer ASC, stat ASC, pocet ASC;
